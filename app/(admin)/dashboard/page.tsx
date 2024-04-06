@@ -35,6 +35,50 @@ export default function Dashboard() {
 		setOpenModal(true);
 	};
 	
+	const handleDeleteProduct = (productId: number) => {
+		// Make API request to delete the product with the given ID
+		fetch(`https://store.istad.co/api/products/${productId}`, {
+		  method: "DELETE",
+		})
+		  .then((response) => {
+			if (response.ok) {
+			  // Remove the deleted product from the products list
+			  setProducts(products.filter((product) => product.id !== productId));
+			  console.log(`Product with ID ${productId} has been deleted.`);
+			} else {
+			  console.error(`Failed to delete product with ID ${productId}.`);
+			}
+		  })
+		  .catch((error) => {
+			console.error(`Error deleting product with ID ${productId}:`, error);
+		});
+	};
+
+	const handleUpdateProduct = (updatedProduct: ProductType) => {
+		// Make API request to update the product
+		fetch(`https://store.istad.co/api/products/${updatedProduct.id}`, {
+		  method: "PUT",
+		  headers: {
+			"Content-Type": "application/json",
+		  },
+		  body: JSON.stringify(updatedProduct),
+		})
+		  .then((response) => {
+			if (response.ok) {
+			  // Update the product in the products list
+			  setProducts(products.map((product) =>
+				product.id === updatedProduct.id ? updatedProduct : product
+			  ));
+			  console.log(`Product with ID ${updatedProduct.id} has been updated.`);
+			} else {
+			  console.error(`Failed to update product with ID ${updatedProduct.id}.`);
+			}
+		  })
+		  .catch((error) => {
+			console.error(`Error updating product with ID ${updatedProduct.id}:`, error);
+		  });
+	};
+
 	const columns: TableColumn<ProductType>[] = [
 		{
 			name: "Title",
@@ -63,8 +107,18 @@ export default function Dashboard() {
 					>
 						view
 					</button>
-					<button className="text-gray-100 bg-amber-500 mx-1 px-3 py-2 rounded-md text-sm">edit</button>
-					<button className="text-gray-100 bg-red-500 mx-1 px-3 py-2 rounded-md text-sm">delete</button>
+					<button
+						onClick={() => handleUpdateProduct(row)}
+						className="text-gray-100 bg-amber-500 mx-1 px-3 py-2 rounded-md text-sm"
+					>
+                      Edit
+                    </button>
+					<button
+						onClick={() => handleDeleteProduct(row.id)}
+						className="text-gray-100 bg-red-500 mx-1 px-3 py-2 rounded-md text-sm"
+					>
+						Delete
+					</button>
 				</div>
 			),
 		},
